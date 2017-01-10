@@ -1,7 +1,8 @@
 import angular from 'angular';
 import angularMeteor from 'angular-meteor';
-import template from './todosList.html';
 import { Tasks } from '../api/tasks.js';
+
+import template from './todosList.html';
 
 class TodosListCtrl {
     constructor($scope) {
@@ -9,16 +10,36 @@ class TodosListCtrl {
 
         this.helpers({
             tasks() {
-                return Tasks.find({});
+
+                // Show newest tasks at the top
+                return Tasks.find({}, {
+                    sort: {
+                        createdAt: -1
+                    }
+                });
             }
         })
     }
+
+    addTask(newTask)
+    {
+        // Insert a task into the collection
+        Tasks.insert({
+            text: newTask,
+            createdAt: new Date
+        });
+
+        // Clear form
+        this.newTask = '';
+    }
+
 }
 
 export default angular.module('todosList', [
     angularMeteor
-])
-    .component('todosList', {
-        templateUrl: 'imports/components/todosList.html',
-        controller: ['$scope', TodosListCtrl]
-    });
+    ])
+
+.component('todosList', {
+    templateUrl: 'imports/components/todosList.html',
+    controller: ['$scope', TodosListCtrl]
+});
